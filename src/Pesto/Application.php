@@ -22,7 +22,7 @@
 	namespace Pesto;
 	
 	use Pesto\Routing\Router as Router;
-	use Pesto\View\View;
+	use Pesto\View\View as View;
 	use Pesto\Handling\Exception as pException;
 	use Pesto\Storage\Repository as Repository;
 	use Pesto\Util\Cryptography as Cryptography;
@@ -35,6 +35,7 @@
 		private $pathApp = null;
 		private $services = array();
 		private $repositories = array();
+		private $defaultConfigs = array("themeName"=>"pure","baseLayoutName" => "base","language" => "en");
 		
 		public function __construct() {
 			$this->router = new Router($this);
@@ -42,25 +43,43 @@
 		}
 		
 		public function setConfig(array $configs) {
-			$this->pathApp = $configs['pathApp'];
-			$this->baseLayoutName = $configs['baseLayoutName'];
+			$this->defaultConfigs = (object)array_merge($this->defaultConfigs,$configs);
+			if (is_null($this->defaultConfigs->pathApp)) $this->getException("pathApp must be defined");
+			$this->defaultProperties();
+			return $this;
 		}
 		
-		private function defaultProperties () {
+		public function defaultProperties () {
 			$this->router->set404(function() {
 				header('HTTP/1.1 404 Not Found');
-				print (new View($this->pathApp . "/views/system/404.phtml"))->render();
+				print (new View($this->defaultConfigs->pathApp . "/views/system/404.phtml"))->render();
 			});
-			$this->globalView = new View($this->pathApp . "/views/layouts/{$this->baseLayoutName}.phtml");
-			$this->globalView->assign($this->args);
+			$this->globalView = new View($this->defaultConfigs->pathApp . "/views/layouts/{$this->defaultConfigs->baseLayoutName}.phtml");
+			$this->globalView->assign(array(
+				"theme" => $this->getTheme(),
+				"appName" => $this->getAppName(),
+				"language" => $this->getLanguage(),
+			));
 		}
 		// Getter
 		public function getRouter() {
 			return $this->router;
 		}
 		
+		public function getLanguage() {
+			return $this->defaultConfigs->language;
+		}
+		
+		public function getAppName() {
+			return $this->defaultConfigs->appName;
+		}
+		
+		public function getTheme() {
+			return $this->defaultConfigs->themeName;
+		}
+		
 		public function getPathApp() {
-			return $this->getPathApp;
+			return $this->defaultConfigs->pathApp;
 		}
 		
 		public function getLayout() {
@@ -108,7 +127,7 @@
 		}
 		// Views
 		public function createView($view) {
-			return new View($this->pathApp . "/views/{$view}.phtml");
+			return new View($this->defaultConfigs->pathApp . "/views/{$view}.phtml");
 		}
 		// Services
 		public function addService($name,$service) {
@@ -130,8 +149,6 @@
 		
 		// Init
 		public function run() {
-			if (is_null($this->pathApp)) $this->getException("foo");
-			$this->defaultProperties();
 			$globalView = $this->globalView;
 			return $this->router->run(function() use ($globalView) {
 				print $globalView->render();

@@ -206,6 +206,8 @@ class Router {
 					$controller->defineApplication($this->application);
 					$controller->$function($params);
 					// defineApplication
+				} else if (is_null($route["fn"])) {
+					
 				} else {
 					// call the handling function with the URL parameters
 					call_user_func_array($route['fn'], $params);

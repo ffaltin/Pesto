@@ -45,5 +45,9 @@
 		public function notFound() {
 			return $this->application->router->go404();
 		}
-	
+		
+		protected function getRepo($name) {
+			return $this->application->getRepository($name);
+		}
+		
 	}
