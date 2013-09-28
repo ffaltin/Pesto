@@ -24,6 +24,7 @@
 	use Pesto\Routing\Router as Router;
 	use Pesto\View\View as View;
 	use Pesto\Handling\Exception as pException;
+	use Pesto\Handling\Response as Response;
 	use Pesto\Storage\Repository as Repository;
 	use Pesto\Util\Cryptography as Cryptography;
 	
@@ -52,7 +53,7 @@
 		public function defaultProperties () {
 			$this->router->set404(function() {
 				header('HTTP/1.1 404 Not Found');
-				print (new View($this->defaultConfigs->pathApp . "/views/system/404.phtml"))->render();
+				return new Response( (new View($this->defaultConfigs->pathApp . "/views/system/404.phtml"))->render());
 			});
 			$this->globalView = new View($this->defaultConfigs->pathApp . "/views/layouts/{$this->defaultConfigs->baseLayoutName}.phtml");
 			$this->globalView->assign(array(
@@ -129,6 +130,11 @@
 		public function createView($view) {
 			return new View($this->defaultConfigs->pathApp . "/views/{$view}.phtml");
 		}
+		
+		public function addToLayout($arr) {
+			return $this->getLayout()->assign($arr);
+		}
+		
 		// Services
 		public function addService($name,$service) {
 			if (isset($this->services[$name])) $this->getException("Service {$name} already defined");
@@ -151,7 +157,7 @@
 		public function run() {
 			$globalView = $this->globalView;
 			return $this->router->run(function() use ($globalView) {
-				print $globalView->render();
+				return new Response($globalView->render());
 			});
 		}
 	}

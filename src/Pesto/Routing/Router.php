@@ -197,8 +197,8 @@ class Router {
 					}
 
 				}, $matches, array_keys($matches));
-
-				if (gettype($route["fn"])=="string") {
+				
+				if (gettype($route["fn"])=="string" && strlen($route['fn']) < 50) {
 					$p = explode('.',$route['fn']);
 					$function = $p[1]."Action";
 					$class = "App\\Controller\\".ucfirst($p[0])."Controller";
@@ -206,19 +206,12 @@ class Router {
 					$controller->defineApplication($this->application);
 					$controller->$function($params);
 					// defineApplication
-				} else if (is_null($route["fn"])) {
-					
-				} else {
+				} else if (gettype($route["fn"])!="string"){
 					// call the handling function with the URL parameters
 					call_user_func_array($route['fn'], $params);
 				}
-
-				// yay!
 				$numHandled++;
-
-				// If we need to quit, then quit
 				if ($quitAfterRun) break;
-
 			}
 
 		}
