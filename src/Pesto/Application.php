@@ -119,7 +119,7 @@
 		}
 		/* Exception */
 		public function notFound() {
-			return $this->router->go404();
+			return $this->router->get404();
 		}
 		
 		public function getException($value) {

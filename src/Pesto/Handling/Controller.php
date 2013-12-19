@@ -26,6 +26,7 @@
 	class Controller {
 	
 		private $application;
+		private $hideLayout = false;
 	
 		public function __construct () {
 			
@@ -35,15 +36,26 @@
 			$this->application = $application;
 		}
 		
-		// 
-		public function createView($view,$assign,$assignLayout) {
+		public function addToLayout(array $assignLayout) {
 			$arr = $assignLayout;
+			$this->application->getLayout()->assign($arr);
+			return $this;
+		}
+
+		public function hideLayout() {
+			$this->hideLayout = true;
+		}
+
+		// 
+		public function createView($view,$assign) {
+			$arr = [];
 			$arr["content"] = (new View($this->application->getPathApp() . "/views/{$view}.phtml"))->assign($assign)->render();
+			if ($this->hideLayout) return new Response($arr['content']);
 			return $this->application->getLayout()->assign($arr)->render();
 		}
 	
 		public function notFound() {
-			return $this->application->router->go404();
+			return $this->application->notFound();
 		}
 		
 		protected function getRepo($name) {

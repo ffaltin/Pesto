@@ -92,7 +92,7 @@ class View {
 		header('Content-Type: '.$this->content_type);
 		extract($this->registry);
 		include $this->path;
-		$buffer = ob_get_contents();
+		$buffer = trim(preg_replace('/>\s+</', '><', ob_get_contents()));
 		ob_end_clean();
 		return $buffer;
 	}
