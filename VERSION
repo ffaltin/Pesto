@@ -1,8 +1,7 @@
 VERSION
 =======
 
-0.5.1
-
+0.6.0 Add Cryptography and Authentication
 0.5.1 Add spaceless to view
 0.5.0 Add function to controller
 0.4.0 Add Controller system
