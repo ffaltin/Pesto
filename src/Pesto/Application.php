@@ -29,17 +29,19 @@
 	use Pesto\Util\Cryptography as Cryptography;
 	
 	class Application {
+		const DEFAULT_EXCEPTION_HANDLER = 'Pesto\\Handling\\ExceptionHandler';
 		private $router = null;
 		private $globaleView = null;
 		private $args;
 		private $baseLayoutName;
 		private $pathApp = null;
-		private $services = array();
+		private $services;
 		private $repositories = array();
 		private $defaultConfigs = array("themeName"=>"pure","baseLayoutName" => "base","language" => "en");
 		
 		public function __construct() {
 			$this->router = new Router($this);
+			$this->services = new \Pesto\Util\Registry();
 			$this->args = ["title" => "","language"=>"en"];
 		}
 		
@@ -88,13 +90,13 @@
 		}
 		
 		public function getDatabase() {
-			if (isset($this->services['database'])) return $this->services['database'];
+			if ($this->services->hasKey('database')) return $this->services->get('database');
 		}
 		
 		public function getRepository($name) {
-			if (!isset($this->services['database'])) $this->getException("You must define a database with defineDatabase function");
+			if ($this->services->hasKey('database')) $this->getException("You must define a database with defineDatabase function");
 			if (isset($this->repositories[$name])) return $this->repositories[$name];
-			return $this->repositories[$name] = new Repository($this->services['database'],$name);
+			return $this->repositories[$name] = new Repository($this->services->get('database'),$name);
 		}
 		
 		/* Routing */
@@ -113,6 +115,19 @@
 			return $this;
 		}
 		
+		public function buildRouter(array $arr) {
+			foreach ($arr as $route => $lang) {
+				foreach ($lang as $l) {
+					$matches = explode("/",$l);
+					$l = "";
+					array_shift($matches);
+					foreach ($matches as $m) { $l .= "/({$m})";}
+					$this->match($l,$route);
+				}
+			}
+			return $this;
+		}
+
 		public function post ($uri,$fn) {
 			$this->router->post($uri,$fn);
 			return $this;
@@ -137,22 +152,22 @@
 		
 		// Services
 		public function addService($name,$service) {
-			if (isset($this->services[$name])) $this->getException("Service {$name} already defined");
-			$this->services[$name] = $service;
+			if ($this->services->hasKey($name)) $this->getException("Service {$name} already defined");
+			$this->services->set($name,$service);
 			return $this;
 		}
 		
 		public function getService($name) {
-			if (!isset($this->services[$name])) $this->getException("The Service {$name} doesn't exist");
-			return $this->services[$name];
+			if ($this->services->hasKey($name)) $this->getException("The Service {$name} doesn't exist");
+			return $this->services->get($name);
 		}
 		
 		public function defineDatabase($db) {
 			if (!($db instanceof \Pesto\Storage\Database)) $this->getException("The database must be an instance of Pesto\Storage\Database");
-			$this->services['database'] = $db;
+			$this->services->set('database',$db);
 			return $this;
 		}
-		
+
 		// Init
 		public function run() {
 			$globalView = $this->globalView;

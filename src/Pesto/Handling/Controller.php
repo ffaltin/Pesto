@@ -27,9 +27,10 @@
 	
 		private $application;
 		private $hideLayout = false;
+		protected $args;
 	
-		public function __construct () {
-			
+		public function __construct ($args = []) {
+			$this->args = $args;
 		}
 		
 		public function defineApplication($application) {

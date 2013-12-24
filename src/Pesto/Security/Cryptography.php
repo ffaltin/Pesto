@@ -30,7 +30,7 @@
  * @link       http://flourishlib.com/Cryptography
  */
 
-namespace Pesto\Util;
+namespace Pesto\Security;
 
 class Cryptography {
 	// The following constants allow for nice looking callbacks to static methods
@@ -45,7 +45,6 @@ class Cryptography {
 	const randomString        = 'Cryptography::randomString';
 	const symmetricKeyDecrypt = 'Cryptography::symmetricKeyDecrypt';
 	const symmetricKeyEncrypt = 'Cryptography::symmetricKeyEncrypt';
-
 
 	/**
 	 * Checks a password against a hash created with ::hashPassword()

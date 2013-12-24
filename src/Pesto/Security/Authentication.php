@@ -1,8 +1,8 @@
 <?php
 
-namespace Pesto\Util;
+namespace Pesto\Security;
 
-use Pesto\Util\Cryptography as Cryptography;
+use Pesto\Security\Cryptography as Cryptography;
 
 class Authentication {
 	//

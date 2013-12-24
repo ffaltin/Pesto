@@ -29,6 +29,7 @@ class Router {
 	private $baseroute = '';
 	private $method = '';
 	private $application;
+	public $mountedRoutes = array();
 	
 	public function __construct ($application=null) {
 		$this->application = $application;
@@ -52,7 +53,6 @@ class Router {
 
 		$pattern = $this->baseroute . '/' . trim($pattern, '/');
 		$pattern = $this->baseroute ? rtrim($pattern, '/') : $pattern;
-
 		foreach (explode('|', $methods) as $method) {
 			$this->routes[$method][] = array(
 				'pattern' => $pattern,
@@ -205,7 +205,7 @@ class Router {
 					$p = explode('.',$route['fn']);
 					$function = $p[1]."Action";
 					$class = "App\\Controller\\".ucfirst($p[0])."Controller";
-					$controller = new $class();
+					$controller = new $class($params);
 					$controller->defineApplication($this->application);
 					$controller->$function($params);
 					// defineApplication

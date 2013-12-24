@@ -32,7 +32,7 @@
 		private $pass;
 	   
 		public function __construct($user,$pass,$database,$host="localhost",$engine="pgsql") {
-			$this->engine = $engine;
+			$this->engine = ($engine=="postgres")?"pgsql":$engine;
 			$this->host = $host;
 			$this->database = $database;
 			$this->user = $user;
